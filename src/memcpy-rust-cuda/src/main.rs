@@ -1,4 +1,4 @@
-use cudarc::driver::{CudaDevice, CudaSlice, DriverError};
+use cudarc::driver::{CudaDevice, DriverError};
 use std::time::Instant;
 
 fn main() -> Result<(), DriverError> {
@@ -17,16 +17,17 @@ fn main() -> Result<(), DriverError> {
         let mut a = dev.alloc_zeros::<f64>(i)?;
         let mut now = Instant::now();
         dev.htod_copy_into(to_be_copied, &mut a)?;
-        let time_to_device = now.elapsed();
+        let host_to_device = now.elapsed();
         
         // device to host
         now = Instant::now();
         let a_host: Vec<f64> = dev.sync_reclaim(a)?;
         //let a_host = dev.dtoh_sync_copy(&a)?; // slow
-        let time_to_host = now.elapsed();
+        let device_to_host = now.elapsed();
         
-        println!("Copy {:?} bytes from host to device: {:?} us", i*size_of::<usize>(), time_to_device.subsec_nanos() as f32 / 1000 as f32);
-        println!("Copy {:?} bytes from device to host: {:?} us\n", i*size_of::<usize>(), time_to_host.subsec_nanos() as f32 / 1000 as f32);
+        println!("Copy {:?} bytes from host to device: {:?} us", i*size_of::<usize>(), host_to_device.subsec_nanos() as f32 / 1000 as f32);
+        println!("Copy {:?} bytes from device to host: {:?} us", i*size_of::<usize>(), device_to_host.subsec_nanos() as f32 / 1000 as f32);
+        println!("Timing gap in nanoseconds per byte: {:?} us\n", (host_to_device.subsec_nanos() as f32 - device_to_host.subsec_nanos() as f32).abs() / (i*size_of::<usize>()) as f32);
 
         assert_eq!(a_host.len(), i);
 

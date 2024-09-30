@@ -1,5 +1,6 @@
 use cudarc::driver::{CudaDevice, DriverError, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::compile_ptx;
+use rand::{distributions::Uniform, Rng};
 
 const PTX_SRC: &str = "
 extern \"C\" __global__ void matmul(float* A, float* B, float* C, int N) {
@@ -20,7 +21,7 @@ extern \"C\" __global__ void matmul(float* A, float* B, float* C, int N) {
 ";
 
 fn main() -> Result<(), DriverError> {
-    let start = std::time::Instant::now();
+    let mut start = std::time::Instant::now();
 
     let ptx = compile_ptx(PTX_SRC).unwrap();
     println!("Compilation succeeded in {:?}", start.elapsed());
@@ -31,25 +32,33 @@ fn main() -> Result<(), DriverError> {
     dev.load_ptx(ptx, "matmul", &["matmul"])?;
     let f = dev.get_func("matmul", "matmul").unwrap();
     println!("Loaded in {:?}", start.elapsed());
+    
+    let vec = vec![32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384];
 
-    let a_host = [3.0f32, 1.0, 9.0, 3.0];
-    let b_host = [1.0f32, 2.0, 5.0, 20.0];
-    let mut c_host = [0.0f32; 4];
+    for i in vec {
+        let mut a_host = vec![0f32; i * i];
+        rand::thread_rng().fill(&mut a_host[..]); 
+        let mut b_host = vec![0f32; i * i];
+        rand::thread_rng().fill(&mut b_host[..]);
 
-    let a_dev = dev.htod_sync_copy(&a_host)?;
-    let b_dev = dev.htod_sync_copy(&b_host)?;
-    let mut c_dev = dev.htod_sync_copy(&c_host)?;
-
-    println!("Copied in {:?}", start.elapsed());
-
-    let cfg = LaunchConfig {
-        block_dim: (2, 2, 1),
-        grid_dim: (1, 1, 1),
-        shared_mem_bytes: 0,
-    };
-    unsafe { f.launch(cfg, (&a_dev, &b_dev, &mut c_dev, 4)) }?;
-
-    dev.dtoh_sync_copy_into(&c_dev, &mut c_host)?;
-    println!("Found {:?} in {:?}", c_host, start.elapsed());
+        let mut c_host = vec![0.0f32; i * i];
+        
+        start = std::time::Instant::now();
+        let a_dev = dev.htod_sync_copy(&a_host)?;
+        let b_dev = dev.htod_sync_copy(&b_host)?;
+        let mut c_dev = dev.htod_sync_copy(&c_host)?;
+        println!("Copied in {:?}", start.elapsed());
+        
+        start = std::time::Instant::now();
+        let cfg = LaunchConfig {
+            block_dim: (32 as u32, 32 as u32, 1),
+            grid_dim: ((i / 32) as u32, (i / 32) as u32, 1),
+            shared_mem_bytes: 0,
+        };
+        unsafe { f.clone().launch(cfg, (&a_dev, &b_dev, &mut c_dev, i)) }?;
+        
+        dev.dtoh_sync_copy_into(&c_dev, &mut c_host)?;
+        println!("matmul in {:?}\n", start.elapsed());
+    }
     Ok(())
 }

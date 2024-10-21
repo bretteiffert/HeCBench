@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 cudarc = { version = "0.12.1", features = ["cuda-version-from-build-system"] }
+rand = "0.8.5"

@@ -28,7 +28,7 @@ Each benchmark falls into a single category. While such classification is not ac
     affine, aobench, asmooth, background-subtract, bezier-surface, bilateral, bm3d, boxfilter, cbsfil, car, ced, colorwheel, convolution1D, convolution3D, convolutionDeformable, convolutionSeperable, dct8x8, debayer, depixel, degrid, doh, dpid, egs, face, flame, gabor, gamma-correction, hogbom, mandelbrot, marchCubes, match, medianfilter, morphology, mriQ, ne, opticalFlow, perlin, sobel, tonemapping, recursiveGaussian, resize, sad, seam-carving, spm, srad, ssim, stencil1d, stencil3d, surfel, zoom
     
 ### Cryptography
-    aes, bitcracker, chacha20, columnarSolver, ecdh, keccaktreehash, merkle, present  
+    aes, bitcracker, bitpermute, chacha20, columnarSolver, ecdh, keccaktreehash, merkle, present  
 
 ### Data compression and reduction
     atomicAggregate, atomicCAS, atomicCost, atomicIntrinsics, atomicPerf, atomicSystemWide, bitpacking, bscan, bwt, compute-score, contract, dxtc2, filter, fpc, histogram, lzss, minmax, mpc, mtf, rle, sc, scan, scan2, scan3, segment-reduce
@@ -49,10 +49,10 @@ Each benchmark falls into a single category. While such classification is not ac
     aligned-types, asta, blockAccess, blockexchange, collision, concurrentKernels, conversion, copy, dispatch, graphExecution, ert, interleave, intrinsics-cast, kernelLaunch, layout, mallocFree, maxFlops, mixbench, nosync, openmp, overlap, p2p, pad, pitch, popcount, prefetch, reverse, ring, saxpy-ompt, shuffle, simpleMultiDevice, streamCreateCopyDestroy, streamOrderedAllocation, streamPriority, streamUM, tensorAccessor, threadfence, warpexchange, vote, wmma, wordcount, zerocopy 
 
 ### Machine learning  
-    accuracy, adam, addBiasResidualLayerNorm, attention, attentionMultiHead, backprop, bincount, bn, channelShuffle, channelSum, clink, concat, crossEntropy, dense-embedding, dropout, dwconv, dwconv1d, expdist, flip, fused-softmax, gd, gelu, ge-spmm, glu, gmm, gru, kalman, kmc, kmeans, knn, layernorm, lda, lif, logprob, lr, lrn, mask, matern, maxpool3d, mcpr, meanshift, mf-sgd, mmcsf, mnist, mrc, multinomial, nlll, nonzero, overlay, p4, page-rank, permute, perplexity, pointwise, pool, qkv, qtclustering, remap, relu, resnet-kernels, rowwiseMoments, rotary, sampling, scel, softmax, stddev, streamcluster, swish, unfold, vol2col, wedford, winograd, word2vec
+    accuracy, adam, addBiasResidualLayerNorm, attention, attentionMultiHead, backprop, bincount, bn, channelShuffle, channelSum, clink, concat, crossEntropy, dense-embedding, dropout, dwconv, dwconv1d, expdist, flip, gd, gelu, ge-spmm, glu, gmm, gru, kalman, kmc, kmeans, knn, layernorm, lda, lif, logprob, lr, lrn, mask, matern, maxpool3d, mcpr, meanshift, mf-sgd, mmcsf, mnist, mrc, multinomial, nlll, nonzero, overlay, p4, page-rank, permute, perplexity, pointwise, pool, qkv, qtclustering, remap, relu, resnet-kernels, rowwiseMoments, rotary, sampling, scel, softmax, softmax-fused, softmax-online, stddev, streamcluster, swish, unfold, vol2col, wedford, winograd, word2vec
 
 ### Math
-    atan2, blas-fp8gemm, blas-gemm, blas-gemmBatched, blas-gemmEx, complex, cross, determinant, divergence, dp, eigenvalue, f16max, f16sp, frechet, fresnel, fwt, gaussian, geam, gels, gemv, hellinger, hmm, idivide, interval, jaccard, jacobi, kurtosis, lanczos, langford, lci, lebesgue, leukocyte, lfib4, log2, lud, ludb, michalewicz, matrix-rotate, matrixT, minkowski, mr, mrg32k3a, norm2, nqueen, ntt, phmm, pnpoly, reverse2D, rfs, romberg, rsc, sddmm-batch, secp256k1, simpleSpmv, slu, spd2s, spgeam, spgemm, spmm, spmv, spnnz, sps2d, spsort, sptrsv, thomas, wyllie, zeropoint
+    atan2, blas-fp8gemm, blas-gemm, blas-gemmBatched, blas-gemmStridedBatched, blas-gemmEx, complex, cross, determinant, divergence, dp, eigenvalue, f16max, f16sp, frechet, fresnel, fwt, gaussian, geam, gels, gemv, hellinger, hmm, idivide, interval, jaccard, jacobi, kurtosis, lanczos, langford, lci, lebesgue, leukocyte, lfib4, log2, lud, ludb, michalewicz, matrix-rotate, matrixT, minkowski, mr, mrg32k3a, norm2, nqueen, ntt, phmm, pnpoly, reverse2D, rfs, romberg, rsc, sddmm-batch, secp256k1, simpleSpmv, slu, spd2s, spgeam, spgemm, spmm, spmv, spnnz, sps2d, spsort, sptrsv, thomas, wyllie, zeropoint
    
 ### Random number generation
     mt, permutate, qrg, rng-wallace, sobol, urng
@@ -317,6 +317,9 @@ Early results are shown [here](results/README.md)
 ### bitpacking (cuda)
   A bit-level operation that aims to reduce the number of bits required to store each value (https://github.com/NVIDIA/nvcomp)
 
+### bitpermute (cuda)
+  Permute the data using bit-level operations in an array (https://github.com/supranational/sppark)
+
 ### black-scholes (cuda)
   The Black-Scholes simulation (https://github.com/cavazos-lab/FinanceBench)
 
@@ -329,9 +332,11 @@ Early results are shown [here](results/README.md)
 ### blas-gemmBatched (cuda)
   Batched general matrix-matrix multiplication (https://github.com/pyrovski/cublasSgemmBatched-example)
 
+### blas-gemmStridedBatched (cuda)
+  Strided batched general matrix-matrix multiplication (https://github.com/pyrovski/cublasSgemmBatched-example)
+
 ### blas-gemmEx (cuda)
   Extended general matrix-matrix multiplication (https://godweiyang.com/2021/08/24/gemm/)
-
 
 ### blockAccess (cuda)
   Block access from the CUB's collective primitives (https://github.com/NVIDIA/cub)
@@ -650,9 +655,6 @@ Early results are shown [here](results/README.md)
 
 ### fsm (cuda)
   A GPU-accelerated implementation of a genetic algorithm for finding well-performing finite-state machines for predicting binary sequences (https://userweb.cs.txstate.edu/~burtscher/research/FSM_GA/)
-
-### fused-softmax (cuda)
-  The softmax function with scaling and masking (https://github.com/Dao-AILab/flash-attention/tree/main/csrc/fused_softmax)
 
 ### fwt (cuda)
   Fast Walsh transformation (http://docs.nvidia.com/cuda/cuda-samples/index.html)
@@ -1383,6 +1385,12 @@ Early results are shown [here](results/README.md)
 
 ### softmax (opencl)
   The softmax function (https://github.com/pytorch/glow/tree/master/lib/Backends/OpenCL)
+
+### softmax-fused (cuda)
+  The softmax function with scaling and masking (https://github.com/Dao-AILab/flash-attention/tree/main/csrc/fused_softmax)
+
+### softmax-online (cuda)
+  The online softmax function with scaling (https://github.com/karpathy/llm.c)
 
 ### sort (opencl)
   Radix sort in the SHOC benchmark suite(https://github.com/vetter/shoc/)

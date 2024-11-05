@@ -74,8 +74,19 @@ fn main() -> Result<(), DriverError> {
     h_cost[source as usize] = 0;
     h_cost_ref[source as usize] = 0;
     
-    //start gpu transfers
+    
 
+     let cfg = LaunchConfig {
+            block_dim: (256 as u32, 1, 1),
+            grid_dim: (1000000 as u32, 1, 1),
+            shared_mem_bytes: 0,
+        };
+    
+    let mut times: Vec<f32> = Vec::new();
+
+    //start gpu transfers
+    let now = Instant::now();
+    
     let d_graph_nodes_starting = dev.htod_sync_copy(&h_graph_nodes_starting)?;
     let d_graph_nodes_no_of_edges = dev.htod_sync_copy(&h_graph_nodes_no_of_edges)?;
     let d_graph_edges = dev.htod_sync_copy(&h_graph_edges)?;
@@ -83,32 +94,50 @@ fn main() -> Result<(), DriverError> {
     let d_updating_graph_mask = dev.htod_sync_copy(&h_updating_graph_mask)?;
     let d_graph_visited = dev.htod_sync_copy(&h_graph_visited)?;
     let d_cost = dev.htod_sync_copy(&h_cost)?;
-    let h_over: Vec<i32> = vec![0; 1];
+    let mut h_over: Vec<i32> = vec![0; 1];
     let d_over = dev.htod_sync_copy(&h_over)?;
     
-    let grid_size = (no_of_nodes + MAX_THREADS_PER_BLOCK - 1) / MAX_THREADS_PER_BLOCK;
-    let block_size = MAX_THREADS_PER_BLOCK;
+    let end = now.elapsed().subsec_nanos() as f32;
+    println!("Rust GPU transfer time {:?} us", end / (1000 as f32));
 
+    //let grid_size = (no_of_nodes + MAX_THREADS_PER_BLOCK - 1) / MAX_THREADS_PER_BLOCK;
+    //let block_size = MAX_THREADS_PER_BLOCK;
+
+    //let mut times: Vec<i32> = Vec::new();
+
+    //println!("{:?}",h_graph_mask[0]);
     let now = Instant::now();
-       
-    //println!("{:?}",h_graph_mask);
+    for i in 0..12 {
+        
+        //let now = Instant::now();
 
-    let cfg = LaunchConfig {
-            block_dim: (256 as u32, 1, 1),
-            grid_dim: (1000000 as u32, 1, 1),
-            shared_mem_bytes: 0,
-        };
         unsafe { f.clone().launch(cfg, (&d_graph_nodes_starting, &d_graph_nodes_no_of_edges, &d_graph_edges, &d_graph_mask, &d_updating_graph_mask, &d_graph_visited, &d_cost, no_of_nodes)) }?;
         unsafe { f2.clone().launch(cfg, (&d_graph_mask, &d_updating_graph_mask, &d_graph_visited, &d_over, no_of_nodes))}?;
+
+        dev.synchronize();
+        
+        //let temp_time = now.elapsed().subsec_nanos() as f32;
+
+        //times.push(temp_time);   
+        
+    }
     
+    let end = now.elapsed().subsec_nanos() as f32;
+    println!("Rust GPU kernel time {:?} us", end / (1000 as f32));
 
-    //let test: Vec<i32> = dev.sync_reclaim(d_graph_mask)?;
-    //println!("{:?}",test);
-
-    let bfs_time = now.elapsed();
-
-    println!("Time BFS: {:?} us", bfs_time.subsec_nanos() as f32 / 1000 as f32);
+    //let mut sum_times: f32 = 0.0;
     
+    //for i in times {
+    //    sum_times += i;
+    //}
+
+    //println!("BFS Kernel 1 mil nodes {:?} us", (sum_times) / (1000 as f32));
+
+    //let test = dev.sync_reclaim(d_cost)?;
+    //println!("Test {:?}\n", test[192039]);
+    //for i in 0..no_of_nodes {
+    //    print!("{:?}\n", test[i as usize]);
+
     // setup execution parameters
     //dim3 grid((no_of_nodes + MAX_THREADS_PER_BLOCK - 1) / MAX_THREADS_PER_BLOCK);
     //dim3 threads(MAX_THREADS_PER_BLOCK);

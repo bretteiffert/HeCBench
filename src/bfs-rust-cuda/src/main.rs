@@ -130,41 +130,5 @@ fn main() -> Result<(), DriverError> {
     let end = now.elapsed().subsec_nanos() as f32;
     println!("Rust GPU kernel time {:?} us", end / (1000 as f32));
 
-    //let mut sum_times: f32 = 0.0;
-    
-    //for i in times {
-    //    sum_times += i;
-    //}
-
-    //println!("BFS Kernel 1 mil nodes {:?} us", (sum_times) / (1000 as f32));
-
-    //let test = dev.sync_reclaim(d_cost)?;
-    //println!("Test {:?}\n", test[192039]);
-    //for i in 0..no_of_nodes {
-    //    print!("{:?}\n", test[i as usize]);
-
-    // setup execution parameters
-    //dim3 grid((no_of_nodes + MAX_THREADS_PER_BLOCK - 1) / MAX_THREADS_PER_BLOCK);
-    //dim3 threads(MAX_THREADS_PER_BLOCK);
-
-
-    
-
-    /*
-    // declare device
-    let dev = CudaDevice::new(0)?;
-    
-    // load code onto gpu
-    dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/src/bfs-kernel.ptx"), "BFS", &["BFS_Kernel"])?;
-    dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/src/bfs-kernel.ptx"), "BFS2", &["BFS_Kernel2"])?;
-    let f = dev.get_func("BFS", "BFS_Kernel").unwrap();
-    let f2 = dev.get_func("BFS2", "BFS_Kernel2").unwrap();
-    */
-
-    
-
-
-
-    
     Ok(())
 }

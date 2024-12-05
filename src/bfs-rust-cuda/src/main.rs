@@ -7,6 +7,8 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
+use std::env;
+
 
 use std::time::Instant;
 
@@ -21,14 +23,14 @@ fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
 }
 
 fn main() -> Result<(), DriverError> {
-    let dev = CudaDevice::new(0)?;
+    let dev = CudaDevice::new(1)?;
     dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/src/bfs-kernel.ptx"), "BFS", &["BFS_Kernel"])?;
     dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/src/bfs-kernel.ptx"), "BFS2", &["BFS_Kernel2"])?;
     let f = dev.get_func("BFS", "BFS_Kernel").unwrap();
     let f2 = dev.get_func("BFS2", "BFS_Kernel2").unwrap();
 
-
-    let lines = lines_from_file("graph1MW_6.txt");
+    let args: Vec<String> = env::args().collect();
+    let lines = lines_from_file(&args[1]);
     let mut source: i32 = 0;
 
     //println!("{:?}", lines[0]);
@@ -82,9 +84,10 @@ fn main() -> Result<(), DriverError> {
             shared_mem_bytes: 0,
         };
     
-    let mut times: Vec<f32> = Vec::new();
-
     //start gpu transfers
+    //
+
+
     let now = Instant::now();
     
     let d_graph_nodes_starting = dev.htod_sync_copy(&h_graph_nodes_starting)?;
@@ -97,8 +100,10 @@ fn main() -> Result<(), DriverError> {
     let mut h_over: Vec<i32> = vec![0; 1];
     let d_over = dev.htod_sync_copy(&h_over)?;
     
-    let end = now.elapsed().subsec_nanos() as f32;
-    println!("Rust GPU transfer time {:?} us", end / (1000 as f32));
+    println!("Mem Transfer Time {:?}\n", (now.elapsed().subsec_nanos() as f32) / (1000 as f32));
+
+
+    //println!("Rust GPU transfer time {:?} us", end / (1000 as f32));
 
     //let grid_size = (no_of_nodes + MAX_THREADS_PER_BLOCK - 1) / MAX_THREADS_PER_BLOCK;
     //let block_size = MAX_THREADS_PER_BLOCK;

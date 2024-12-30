@@ -24,7 +24,8 @@ obj = $(source:.cu=.o)
 #===============================================================================
 
 # Standard Flags
-CFLAGS := $(EXTRA_CFLAGS) -std=c++14 -Xcompiler -Wall -arch=$(ARCH)
+CFLAGS := $(EXTRA_CFLAGS) -std=c++14 -Xcompiler -Wall -arch=$(ARCH) \
+          -Xcompiler -fopenmp
 
 # Linker Flags
 LDFLAGS = 
@@ -46,11 +47,14 @@ endif
 $(program): $(obj) Makefile
 	$(CC) $(CFLAGS) $(obj) -o $@ $(LDFLAGS)
 
-%.o: %.cu Makefile
+%.o: %.cu reference.h Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(program) $(obj)
 
 run: $(program)
-	$(LAUNCHER) ./$(program) 512 8192 512 100
+	#$(LAUNCHER) ./$(program) 512 8192 512 100
+	$(LAUNCHER) ./$(program) 8 4096 512 100
+	$(LAUNCHER) ./$(program) 8 4096 2048 100
+	$(LAUNCHER) ./$(program) 8 4096 5184 100

@@ -5,6 +5,7 @@
 #include <oneapi/mkl.hpp>
 #include "utils.h"
 
+using sycl::ext::oneapi::bfloat16;
 
 template <typename T, typename S>
 void allocate_memory(sycl::queue &q, int m, int n, int k, T **A, T **B, S **C) {
@@ -20,15 +21,17 @@ void free_memory(sycl::queue &q, T *A, T *B, S *C) {
   sycl::free(C, q);
 }
 
-template <typename T, typename S>
+template <typename Ta, typename Tc, typename Ts>
 bool mkl_gemm_ex(
     sycl::queue &q,
     oneapi::mkl::transpose transA,
     oneapi::mkl::transpose transB,
     int m, int n, int k,
-    T *A, T *B, S *C,
+    Ta *A, Ta *B, Tc *C,
     int lda, int ldb, int ldc,
-    S alpha, S beta)
+    Ts alpha, Ts beta,
+    oneapi::mkl::blas::compute_mode mode =
+      oneapi::mkl::blas::compute_mode::standard)
 {
   sycl::event status;
   try {
@@ -48,11 +51,13 @@ bool mkl_gemm_ex(
   return true;
 }
 
-template <typename T, typename S>
+template <typename Ta, typename Tc, typename Ts>
 void test_gemm(sycl::queue &q,
                const int m, const int n, const int k,
-               T *A, T *B, S *C,
-               const S alpha, const S beta, int iteration)
+               Ta *A, Ta *B, Tc *C,
+               const Ts alpha, const Ts beta, int iteration,
+               oneapi::mkl::blas::compute_mode mode =
+                 oneapi::mkl::blas::compute_mode::standard)
 {
   double total_time = 0;
   struct timeval start, end;
@@ -72,7 +77,8 @@ void test_gemm(sycl::queue &q,
                                k, // ldb
                                n, // ldc
                                alpha,
-                               beta);
+                               beta,
+                               mode);
     gettimeofday(&end, NULL);
     if (!success) break;
     else if (i > 0) {
@@ -82,7 +88,7 @@ void test_gemm(sycl::queue &q,
   if (total_time > 0.0) {
     double avg_time = total_time / (iteration - 1);
     printf("%.3f ms\n", avg_time);
-    performance(m, n, k, std::is_same<T, int8_t>::value, avg_time * 1e-3);
+    performance(m, n, k, std::is_same<Ta, int8_t>::value, avg_time * 1e-3);
   }
 }
 
@@ -111,17 +117,19 @@ int main(int argc, char* argv[]) {
                            .convert<sycl::half, sycl::rounding_mode::rte>()[0],
              h_beta = sycl::vec<float, 1>{0.f}
                           .convert<sycl::half, sycl::rounding_mode::rte>()[0];
-
+  const float bf_alpha = 1.f, bf_beta = 0.f;
   const int32_t i_alpha = 1, i_beta = 0;
 
   double *dA, *dB, *dC;
   float *fA, *fB, *fC;
   sycl::half *hA, *hB, *hC;
+  bfloat16 *bfA, *bfB, *bfC;
   int8_t *iA, *iB; int32_t *iC;
 
   allocate_memory(q, m, n, k, &dA, &dB, &dC);
   allocate_memory(q, m, n, k, &fA, &fB, &fC);
   allocate_memory(q, m, n, k, &hA, &hB, &hC);
+  allocate_memory(q, m, n, k, &bfA, &bfB, &bfC);
   allocate_memory(q, m, n, k, &iA, &iB, &iC);
 
   for (int i = 0; i < m * k; ++i) {
@@ -129,6 +137,7 @@ int main(int argc, char* argv[]) {
     fA[i] = float(i % 255 - 127) / 127;
     hA[i] = sycl::vec<float, 1>{fA[i]}
                 .convert<sycl::half, sycl::rounding_mode::rte>()[0];
+    bfA[i] = bfloat16(fA[i]);
     iA[i] = float2int8(fA[i], 127);
   }
   for (int i = 0; i < k * n; ++i) {
@@ -136,17 +145,29 @@ int main(int argc, char* argv[]) {
     fB[i] = float(i % 255 - 127) / 127;
     hB[i] = sycl::vec<float, 1>{fB[i]}
                 .convert<sycl::half, sycl::rounding_mode::rte>()[0];
+    bfB[i] = bfloat16(fB[i]);
     iB[i] = float2int8(fB[i], 127);
   }
 
   printf(">>>>>>>>>>>>>>>>> test fp64 >>>>>>>>>>>>>>>>>\n");
   test_gemm(q, m, n, k, dA, dB, dC, d_alpha, d_beta, iteration);
 
-  printf(">>>>>>>>>>>>>>>>> test fp32 >>>>>>>>>>>>>>>>>\n");
+  printf(">>>>>>>>>>>>>>>>> test fp32 (compute mode bf16) >>>>>>>>>>>>>>>>>\n");
+  test_gemm(q, m, n, k, fA, fB, fC, f_alpha, f_beta, iteration,
+            oneapi::mkl::blas::compute_mode::float_to_bf16);
+
+  printf(">>>>>>>>>>>>>>>>> test fp32 (compute mode tf32) >>>>>>>>>>>>>>>>>\n");
+  test_gemm(q, m, n, k, fA, fB, fC, f_alpha, f_beta, iteration,
+            oneapi::mkl::blas::compute_mode::float_to_tf32);
+
+  printf(">>>>>>>>>>>>>>>>> test fp32 (compute mode fp32) >>>>>>>>>>>>>>>>>\n");
   test_gemm(q, m, n, k, fA, fB, fC, f_alpha, f_beta, iteration);
 
   printf(">>>>>>>>>>>>>>>>> test fp16 >>>>>>>>>>>>>>>>>\n");
   test_gemm(q, m, n, k, hA, hB, hC, h_alpha, h_beta, iteration);
+
+  printf(">>>>>>>>>>>>>>>>> test bfloat16 >>>>>>>>>>>>>\n");
+  test_gemm(q, m, n, k, bfA, bfB, bfC, bf_alpha, bf_beta, iteration);
 
   printf(">>>>>>>>>>>>>>>>> test int8 >>>>>>>>>>>>>>>>>\n");
   test_gemm(q, m, n, k, iA, iB, iC, i_alpha, i_beta, iteration);
@@ -156,13 +177,17 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < 10; ++i)
     printf("%.5lf%c", dC[i], " \n"[i==9]);
 
-  printf("fp32: ");
+  printf("fp32: "); // fp32 (bf16 and tf32) are not compared
   for (int i = 0; i < 10; ++i)
     printf("%.5f%c", fC[i], " \n"[i==9]);
 
   printf("fp16: ");
   for (int i = 0; i < 10; ++i)
     printf("%.5f%c", float(hC[i]), " \n"[i==9]);
+
+  printf("bf16: ");
+  for (int i = 0; i < 10; ++i)
+    printf("%.5f%c", float(bfC[i]), " \n"[i==9]);
 
   printf("int8: ");
   for (int i = 0; i < 10; ++i)
@@ -171,6 +196,7 @@ int main(int argc, char* argv[]) {
   free_memory(q, dA, dB, dC);
   free_memory(q, fA, fB, fC);
   free_memory(q, hA, hB, hC);
+  free_memory(q, bfA, bfB, bfC);
   free_memory(q, iA, iB, iC);
   return 0;
 }

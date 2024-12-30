@@ -25,13 +25,13 @@ Each benchmark falls into a single category. While such classification is not ac
     all-pairs-distance, bsw, ccs, cm, deredundancy, diamond, epistasis, extend2, frna, fsm, ga, logan, minibude, minimap2, nbnxm, nw, pcc, prna, sa, snake
 
 ### Computer vision and image processing
-    affine, aobench, asmooth, background-subtract, bezier-surface, bilateral, bm3d, boxfilter, cbsfil, car, ced, colorwheel, convolution1D, convolution3D, convolutionDeformable, convolutionSeperable, dct8x8, debayer, depixel, degrid, doh, dpid, egs, face, flame, gabor, gamma-correction, hogbom, mandelbrot, marchCubes, match, medianfilter, morphology, mriQ, ne, opticalFlow, perlin, sobel, tonemapping, recursiveGaussian, resize, sad, seam-carving, spm, srad, ssim, stencil1d, stencil3d, surfel, zoom
+    affine, aobench, asmooth, background-subtract, bezier-surface, bilateral, bm3d, boxfilter, cbsfil, car, ced, colorwheel, convolution1D, convolution3D, convolutionDeformable, convolutionSeperable, dct8x8, debayer, depixel, degrid, doh, dpid, egs, face, flame, gabor, gamma-correction, hogbom, mandelbrot, marchCubes, match, medianfilter, morphology, mriQ, ne, opticalFlow, perlin, sobel, tonemapping, recursiveGaussian, resize, sad, seam-carving, spm, srad, ssim, stencil1d, stencil3d, surfel, voxelization, zoom
     
 ### Cryptography
-    aes, bitcracker, chacha20, columnarSolver, ecdh, keccaktreehash, merkle, present  
+    aes, bitcracker, bitpermute, chacha20, columnarSolver, ecdh, keccaktreehash, merkle, present  
 
 ### Data compression and reduction
-    atomicAggregate, atomicCAS, atomicCost, atomicIntrinsics, atomicPerf, atomicSystemWide, bitpacking, bscan, bwt, compute-score, contract, dxtc2, filter, fpc, histogram, lzss, minmax, mpc, mtf, rle, sc, scan, scan2, scan3, segment-reduce
+    atomicAggregate, atomicCAS, atomicCost, atomicIntrinsics, atomicPerf, atomicSystemWide, bitpacking, bscan, bwt, compute-score, contract, dxtc2, filter, fpc, histogram, lzss, minmax, mpc, mtf, quant, rle, sc, scan, scan2, scan3, segment-reduce
 
 ### Data encoding, decoding, or verification
     ans, crc64, crs, entropy, jenkins-hash, ldpc, md5hash, murmurhash3
@@ -46,13 +46,13 @@ Each benchmark falls into a single category. While such classification is not ac
     cc, floydwarshall, floydwarshall2, gc, hbc, hungarian, mis, sssp, rsmt
 
 ### Language and kernel features
-    aligned-types, asta, blockAccess, blockexchange, collision, concurrentKernels, conversion, copy, dispatch, graphExecution, ert, interleave, intrinsics-cast, kernelLaunch, layout, mallocFree, maxFlops, mixbench, nosync, openmp, overlap, p2p, pad, pitch, popcount, prefetch, reverse, ring, saxpy-ompt, shuffle, simpleMultiDevice, streamCreateCopyDestroy, streamOrderedAllocation, streamPriority, streamUM, tensorAccessor, threadfence, warpexchange, vote, wmma, wordcount, zerocopy 
+    aligned-types, asta, blockAccess, blockexchange, collision, concurrentKernels, conversion, dispatch, graphExecution, ert, interleave, intrinsics-cast, kernelLaunch, layout, mallocFree, maxFlops, mixbench, nosync, openmp, overlap, p2p, pad, pitch, popcount, prefetch, reverse, ring, saxpy-ompt, shuffle, simpleMultiDevice, streamCreateCopyDestroy, streamOrderedAllocation, streamPriority, streamUM, tensorAccessor, threadfence, warpexchange, vote, wmma, wordcount, zerocopy 
 
 ### Machine learning  
-    accuracy, adam, addBiasResidualLayerNorm, attention, attentionMultiHead, backprop, bincount, bn, channelShuffle, channelSum, clink, concat, crossEntropy, dense-embedding, dropout, dwconv, dwconv1d, expdist, flip, fused-softmax, gd, gelu, ge-spmm, glu, gmm, gru, kalman, kmc, kmeans, knn, lda, lif, logprob, lr, lrn, mask, matern, maxpool3d, mcpr, meanshift, mf-sgd, mmcsf, mnist, mrc, multinomial, nlll, nonzero, overlay, p4, page-rank, perplexity, pointwise, pool, qtclustering, remap, relu, resnet-kernels, rowwiseMoments, rotary, sampling, scel, softmax, stddev, streamcluster, swish, unfold, vol2col, wedford, winograd, word2vec
+    accuracy, adam, adamw, addBiasQKV, addBiasResidualLayerNorm, attention, attentionMultiHead, backprop, bincount, bn, channelShuffle, channelSum, clink, concat, crossEntropy, dense-embedding, dropout, dwconv, dwconv1d, expdist, flip, gd, gelu, ge-spmm, glu, gmm, gru, kalman, kmc, kmeans, knn, layernorm, lda, lif, logprob, lr, lrn, mask, matern, maxpool3d, mcpr, meanshift, mf-sgd, mmcsf, mnist, mrc, multinomial, nlll, nonzero, overlay, p4, page-rank, permute, perplexity, pointwise, pool, qkv, qtclustering, remap, relu, resnet-kernels, rowwiseMoments, rotary, sampling, scel, snicit, softmax, softmax-fused, softmax-online, stddev, streamcluster, swish, unfold, vol2col, wedford, winograd, word2vec
 
 ### Math
-    atan2, blas-fp8gemm, blas-gemm, blas-gemmBatched, blas-gemmEx, complex, cross, determinant, divergence, dp, eigenvalue, f16max, f16sp, frechet, fresnel, fwt, gaussian, geam, gels, gemv, hellinger, hmm, idivide, interval, jaccard, jacobi, kurtosis, lanczos, langford, lci, lebesgue, leukocyte, lfib4, log2, lud, ludb, michalewicz, matrix-rotate, matrixT, minkowski, mr, mrg32k3a, norm2, nqueen, ntt, phmm, pnpoly, reverse2D, rfs, romberg, rsc, sddmm-batch, secp256k1, simpleSpmv, slu, spd2s, spgeam, spgemm, spmm, spmv, spnnz, sps2d, spsort, sptrsv, thomas, wyllie, zeropoint
+    atan2, blas-dot, blas-fp8gemm, blas-gemm, blas-gemmBatched, blas-gemmStridedBatched, blas-gemmEx, blas-gemmEx2, complex, cross, determinant, divergence, dp, eigenvalue, f16max, f16sp, frechet, fresnel, fwt, gaussian, geam, gels, gemv, hellinger, hmm, idivide, interval, jaccard, jacobi, kurtosis, lanczos, langford, lci, lebesgue, leukocyte, lfib4, log2, lud, ludb, michalewicz, matrix-rotate, matrixT, minkowski, mr, mrg32k3a, norm2, nqueen, ntt, phmm, pnpoly, reverse2D, rfs, romberg, rsc, sddmm-batch, secp256k1, simpleSpmv, slu, spd2s, spgeam, spgemm, spmm, spmv, spnnz, sps2d, spsort, sptrsv, thomas, wyllie, zeropoint
    
 ### Random number generation
     mt, permutate, qrg, rng-wallace, sobol, urng
@@ -83,10 +83,12 @@ Each benchmark falls into a single category. While such classification is not ac
       `make run`
       
       Navigate to a benchmark in SYCL (benchmark-sycl) and type   
-     `make CUDA=yes CUDA_ARCH=sm_70 GCC_TOOLCHAIN="" run` (targeting an NVIDIA GPU)
-     `make HIP=yes HIP_ARCH=gfx908 run`                   (targeting an AMD GPU)  
-     `make run` or `make CC=icpx run`                     (targeting an Intel GPU)
-      NOTE: `--gcc-toolchain` may be required for the SYCL compiler to select the proper GNU toolchain; otherwise unset GCC_TOOLCHAIN
+      `make CUDA=yes CUDA_ARCH=sm_70 run`       (targeting an NVIDIA GPU)
+      `make HIP=yes HIP_ARCH=gfx908 run`        (targeting an AMD GPU)
+      `make run` or `make CC=icpx run`          (targeting an Intel GPU)
+
+      NOTE: GCC_TOOLCHAIN may be set to select a specific version of GNU toolchain for the SYCL compiler
+      `make CUDA=yes CUDA_ARCH=sm_70 GCC_TOOLCHAIN=/path/to/x86_64/gcc-9.1.0 run`
      
       Navigate to a benchmark in OpenMP (benchmark-omp) and type  
       `make -f Makefile.nvc run`  (targeting NVIDIA GPUs)
@@ -206,6 +208,12 @@ Early results are shown [here](results/README.md)
 ### adam (cuda)
   Adaptive moment estimation (https://github.com/hpcaitech/ColossalAI)
 
+### adamw (cuda)
+  Adaptive moment estimation with weight decay (https://github.com/lessw2020/QuantFour_AdamW_Cuda)
+
+### addBiasQKV (cuda)
+  Add biases to query, key, and value vectors (https://github.com/NVIDIA/FasterTransformer)
+
 ### addBiasResidualLayerNorm (cuda)
   Combines the bias, residual of previous block and the computation of layer normalization (https://github.com/NVIDIA/FasterTransformer)
 
@@ -317,21 +325,32 @@ Early results are shown [here](results/README.md)
 ### bitpacking (cuda)
   A bit-level operation that aims to reduce the number of bits required to store each value (https://github.com/NVIDIA/nvcomp)
 
+### bitpermute (cuda)
+  Permute the data using bit-level operations in an array (https://github.com/supranational/sppark)
+
 ### black-scholes (cuda)
   The Black-Scholes simulation (https://github.com/cavazos-lab/FinanceBench)
+
+### blas-dot (cuda)
+  A dot product between two real vectors
 
 ### blas-fp8gemm (cuda)
   Scaled matrix-matrix multiplication in a 8-bit floating-point format
 
 ### blas-gemm (sycl) 
-  General matrix-matrix multiplication
+  General matrix-matrix multiplications (https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-dpcpp/2025-0/gemm.html)
 
 ### blas-gemmBatched (cuda)
   Batched general matrix-matrix multiplication (https://github.com/pyrovski/cublasSgemmBatched-example)
 
-### blas-gemmEx (cuda)
-  Extended general matrix-matrix multiplication (https://godweiyang.com/2021/08/24/gemm/)
+### blas-gemmStridedBatched (cuda)
+  Strided batched general matrix-matrix multiplication (https://github.com/pyrovski/cublasSgemmBatched-example)
 
+### blas-gemmEx (cuda)
+  Extended general matrix-matrix multiplications (https://godweiyang.com/2021/08/24/gemm/, https://github.com/UoB-HPC/abc-pvc-deepdive)
+
+### blas-gemmEx2 (cuda)
+  Extended general matrix-matrix multiplications using cuBLASLt, hipBLASLt, and oneDNN 
 
 ### blockAccess (cuda)
   Block access from the CUB's collective primitives (https://github.com/NVIDIA/cub)
@@ -476,9 +495,6 @@ Early results are shown [here](results/README.md)
 
 ### coordinates (cuda)
   Coordinates(latitude and longitude) transformation using the STL transform (https://github.com/rapidsai/cuspatial)
-
-### copy (cuda)
-  Memory copies using direct, zero, and managed memory accesses
 
 ### crc64 (openmp)
   64-bit cyclic-redundancy check (https://trac.alcf.anl.gov/projects/hpcrc64/)
@@ -650,9 +666,6 @@ Early results are shown [here](results/README.md)
 
 ### fsm (cuda)
   A GPU-accelerated implementation of a genetic algorithm for finding well-performing finite-state machines for predicting binary sequences (https://userweb.cs.txstate.edu/~burtscher/research/FSM_GA/)
-
-### fused-softmax (cuda)
-  The softmax function with scaling and masking (https://github.com/Dao-AILab/flash-attention/tree/main/csrc/fused_softmax)
 
 ### fwt (cuda)
   Fast Walsh transformation (http://docs.nvidia.com/cuda/cuda-samples/index.html)
@@ -854,6 +867,9 @@ Early results are shown [here](results/README.md)
 
 ### lavaMD (opencl)
   LavaMD in the Rodinia benchmark suite (http://lava.cs.virginia.edu/Rodinia/download_links.htm)
+
+### layernorm (cuda)
+  Apply layer normalization over a batch of inputs (https://github.com/karpathy/llm.c)
 
 ### layout (opencl)
   AoS and SoA comparison (https://github.com/OpenCL/AMD_APP_samples)
@@ -1152,6 +1168,9 @@ Early results are shown [here](results/README.md)
 ### permutate (cuda)
   Parallel implementation of the permutation testing in NIST SP 800-90B (https://github.com/yeah1kim/yeah_GPU_SP800_90B_IID)
 
+### permute (cuda)
+  A tensor with its dimensions permuted (https://github.com/karpathy/llm.c)
+
 ### perplexity (cuda)
   Perplexity search (https://github.com/rapidsai/cuml/)  
 
@@ -1197,11 +1216,17 @@ Early results are shown [here](results/README.md)
 ### qem (cuda)
   A quartic equation minimizer (https://github.com/qureshizawar/CUDA-quartic-solver)
 
+### qkv (cuda)
+  Generate query, key and value vectors over a batch of inputs (https://github.com/karpathy/llm.c, https://github.com/mspronesti/llm.sycl)
+
 ### qrg (cuda)
   Niederreiter quasirandom number generator and Moro's Inverse Cumulative Normal Distribution generator (http://developer.download.nvidia.com/compute/cuda/3_0/sdk/website/OpenCL/website/samples.html)
 
 ### qtclustering (opencl)
   Quality threshold clustering (https://github.com/vetter/shoc/)
+
+### quant (cuda)
+  8-bit quantization (https://github.com/bitsandbytes-foundation/bitsandbytes/tree/main)
 
 ### quicksort (sycl)
   Quicksort (https://software.intel.com/content/www/us/en/develop/download/code-for-the-parallel-universe-article-gpu-quicksort-from-opencl-to-data-parallel-c.html)
@@ -1366,6 +1391,9 @@ Early results are shown [here](results/README.md)
 ### snake (cuda)
   Genome pre-alignment filtering (https://github.com/CMU-SAFARI/SneakySnake)
 
+### snicit (cuda)
+  Accelerating sparse neural network inference via compression at inference time (https://github.com/IDEA-CUHK/SNICIT)
+
 ### sobel (opencl)
   Sobel filter (https://github.com/OpenCL/AMD_APP_samples)
 
@@ -1374,6 +1402,12 @@ Early results are shown [here](results/README.md)
 
 ### softmax (opencl)
   The softmax function (https://github.com/pytorch/glow/tree/master/lib/Backends/OpenCL)
+
+### softmax-fused (cuda)
+  The softmax function with scaling and masking (https://github.com/Dao-AILab/flash-attention/tree/main/csrc/fused_softmax)
+
+### softmax-online (cuda)
+  The online softmax function with scaling (https://github.com/karpathy/llm.c)
 
 ### sort (opencl)
   Radix sort in the SHOC benchmark suite(https://github.com/vetter/shoc/)
@@ -1536,6 +1570,9 @@ Early results are shown [here](results/README.md)
 
 ### vote (cuda)
   Demonstrate the usage of the vote intrinsics (https://github.com/NVIDIA/cuda-samples/)
+
+### voxelization (cuda)
+  Transform a point tensor to a sparse tensor (https://github.com/NVIDIA-AI-IOT/Lidar_AI_Solution)
 
 ### warpexchange (cuda)
   Rearrange data partitioned across a warp (https://github.com/NVIDIA/cub)

@@ -1,9 +1,9 @@
 extern "C" __global__ void BFS_Kernel(const int* __restrict__ d_graph_nodes_starting, 
        const int* __restrict__ d_graph_nodes_no_of_edges,	
-       const int* __restrict__ d_graph_edges,
-       int* __restrict__ d_graph_mask,
-       int* __restrict__ d_updatind_graph_mask,
-       const int*__restrict__ d_graph_visited,
+       int* __restrict__ d_graph_edges,
+       char* __restrict__ d_graph_mask,
+       char* __restrict__ d_updatind_graph_mask,
+       const char*__restrict__ d_graph_visited,
        int* __restrict__ d_cost,
        const int no_of_nodes) 
 {
@@ -23,10 +23,10 @@ extern "C" __global__ void BFS_Kernel(const int* __restrict__ d_graph_nodes_star
     }
 }
 
-extern "C" __global__ void BFS_Kernel2(int* __restrict__ d_graph_mask,
-        int* __restrict__ d_updatind_graph_mask,
-        int* __restrict__ d_graph_visited,
-        int* __restrict__ d_over,
+extern "C" __global__ void BFS_Kernel2(char* __restrict__ d_graph_mask,
+        char* __restrict__ d_updatind_graph_mask,
+        char* __restrict__ d_graph_visited,
+        char* __restrict__ d_over,
         const int no_of_nodes) 
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;

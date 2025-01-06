@@ -90,18 +90,44 @@ fn main() -> Result<(), DriverError> {
     //
 
 
-    let now = Instant::now();
     
-    let d_graph_nodes_starting = dev.htod_sync_copy(&h_graph_nodes_starting)?;
-    let d_graph_nodes_no_of_edges = dev.htod_sync_copy(&h_graph_nodes_no_of_edges)?;
-    let d_graph_edges = dev.htod_sync_copy(&h_graph_edges)?;
-    let d_graph_mask = dev.htod_sync_copy(&h_graph_mask)?;
-    let d_updating_graph_mask = dev.htod_sync_copy(&h_updating_graph_mask)?;
-    let d_graph_visited = dev.htod_sync_copy(&h_graph_visited)?;
-    let d_cost = dev.htod_sync_copy(&h_cost)?;
-    let d_over = dev.htod_sync_copy(&h_over)?;
+    let repeat = 512;
+
+    let mut d_graph_nodes_starting = dev.htod_sync_copy(&h_graph_nodes_starting)?;
+    let mut d_graph_nodes_no_of_edges = dev.htod_sync_copy(&h_graph_nodes_no_of_edges)?;
+    let mut d_graph_edges = dev.htod_sync_copy(&h_graph_edges)?;
+    let mut d_graph_mask = dev.htod_sync_copy(&h_graph_mask)?;
+    let mut d_updating_graph_mask = dev.htod_sync_copy(&h_updating_graph_mask)?;
+    let mut d_graph_visited = dev.htod_sync_copy(&h_graph_visited)?;
+    let mut d_cost = dev.htod_sync_copy(&h_cost)?;
+    let mut d_over = dev.htod_sync_copy(&h_over)?;
     
-    println!("Mem Transfer Time {:?}\n", (now.elapsed().subsec_nanos() as f32) / (1000 as f32));
+    //let now = Instant::now();
+    
+    let mut mem_transfer_times: Vec<f32> = Vec::new();
+
+    for _iter in 0..repeat {
+        let now = Instant::now();
+        d_graph_nodes_starting = dev.htod_sync_copy(&h_graph_nodes_starting)?;
+        d_graph_nodes_no_of_edges = dev.htod_sync_copy(&h_graph_nodes_no_of_edges)?;
+        d_graph_edges = dev.htod_sync_copy(&h_graph_edges)?;
+        d_graph_mask = dev.htod_sync_copy(&h_graph_mask)?;
+        d_updating_graph_mask = dev.htod_sync_copy(&h_updating_graph_mask)?;
+        d_graph_visited = dev.htod_sync_copy(&h_graph_visited)?;
+        d_cost = dev.htod_sync_copy(&h_cost)?;
+        d_over = dev.htod_sync_copy(&h_over)?;
+        mem_transfer_times.push(now.elapsed().subsec_nanos() as f32);
+    }
+
+    let mut mem_transfer_total = 0.0;
+
+    for i in mem_transfer_times {
+        mem_transfer_total += i as f32
+    }
+
+    //println!("Mem Transfer Time {:?}\n", ((mem_transfer_total) /  (1000 as f32)));
+
+    println!("Mem Transfer Time {:?}\n", ((mem_transfer_total as f32) / (repeat as f32)) /  (1000 as f32));
 
 
     //println!("Rust GPU transfer time {:?} us", end / (1000 as f32));
@@ -110,7 +136,7 @@ fn main() -> Result<(), DriverError> {
 
     //println!("{:?}",h_graph_mask[0]);
     let now = Instant::now();
-    for _i in 0..12 {
+    for _i in 0..15 {
         
         //let now = Instant::now();
 

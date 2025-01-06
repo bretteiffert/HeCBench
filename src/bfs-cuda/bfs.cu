@@ -127,7 +127,9 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
   
   long time = 0;
   
-  for (int i = 0; i < 128; i++) {
+  int repeat = 512;
+
+  for (int i = 0; i < repeat; i++) {
   	auto start = std::chrono::steady_clock::now();
 	  
 	cudaMemcpy(d_graph_nodes, h_graph_nodes, sizeof(Node)*no_of_nodes, cudaMemcpyHostToDevice); 
@@ -136,12 +138,12 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
   	cudaMemcpy(d_updating_graph_mask, h_updating_graph_mask, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice);
   	cudaMemcpy(d_graph_visited, h_graph_visited, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice);  
   	cudaMemcpy(d_cost, h_cost, sizeof(int)*no_of_nodes, cudaMemcpyHostToDevice);
-
+	cudaDeviceSynchronize();
 	auto end = std::chrono::steady_clock::now();
   	time += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
   }
 
-  printf("Total memory transfer time : %f (us)\n", (time * 1e-3f / 128.0));
+  printf("Total memory transfer time : %f (us)\n", ((time * 1e-3f) / (float)repeat));
 
   char h_over;
   char *d_over;
@@ -216,6 +218,8 @@ int main(int argc, char * argv[])
 
   fscanf(fp,"%d",&no_of_nodes);
 
+  printf("size of node %d\n", sizeof(Node));
+
   // allocate host memory
   h_graph_nodes = (Node*) malloc(sizeof(Node)*no_of_nodes);
   h_graph_mask = (char*) malloc(sizeof(char)*no_of_nodes);
@@ -243,6 +247,7 @@ int main(int argc, char * argv[])
   fscanf(fp,"%d",&edge_list_size);
   //printf("edge_list_size %d\n", edge_list_size);
   int id,cost;
+  printf("size of int %d\n", sizeof(int));
   int* h_graph_edges = (int*) malloc(sizeof(int)*edge_list_size);
   for(int i=0; i < edge_list_size ; i++){
     fscanf(fp,"%d",&id);
@@ -282,9 +287,9 @@ int main(int argc, char * argv[])
   // verify
   compare_results<int>(h_cost_ref, h_cost, no_of_nodes);
   */
-  for (int i = 0; i < 1000000; i++) {
+  /*for (int i = 0; i < 1000000; i++) {
   	printf("%d\n", h_cost[i]); 
-  }
+  }*/
 
   free(h_graph_nodes);
   free(h_graph_mask);

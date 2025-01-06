@@ -6,7 +6,7 @@
 CC        = nvcc
 OPTIMIZE  = yes
 DEBUG     = no
-ARCH      = sm_60
+ARCH      = sm_90
 LAUNCHER  =
 
 #===============================================================================
@@ -55,5 +55,5 @@ clean:
 	rm -rf $(program) $(obj)
 
 run: $(program)
-	$(LAUNCHER) ./$(program) ../data/bfs/graph1MW_6.txt
+	$(LAUNCHER) ./$(program) rodinia_3.1/data/bfs/inputGen/graph128M.txt
 

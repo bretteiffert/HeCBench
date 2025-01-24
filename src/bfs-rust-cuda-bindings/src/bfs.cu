@@ -1,18 +1,22 @@
-#include "bfs.h"
-
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <cuda.h>
-
 #include <chrono>
-
-#include "util.h"
+#include <cuda.h>
 
 #define MAX_THREADS_PER_BLOCK 256
 
-// BFS Kernel 1
-extern "C" __global__ void
+#include "util.h"
+
+//Structure to hold a node information
+struct Node
+{
+  int starting;
+  int no_of_edges;
+};
+
+__global__ void
 Kernel(const Node* __restrict__ d_graph_nodes, 
        const int* __restrict__ d_graph_edges,
        char* __restrict__ d_graph_mask,
@@ -40,8 +44,7 @@ Kernel(const Node* __restrict__ d_graph_nodes,
   }
 }
 
-// BFS Kernel 2
-extern "C" __global__ void
+__global__ void
 Kernel2(char* __restrict__ d_graph_mask,
         char* __restrict__ d_updatind_graph_mask,
         char* __restrict__ d_graph_visited,
@@ -94,6 +97,10 @@ void run_bfs_cpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
   while(stop);
 }
 
+void Usage(int argc, char**argv){
+  fprintf(stderr,"Usage: %s <input_file>\n", argv[0]);
+}
+
 //Apply BFS on a Graph
 void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
     int *h_graph_edges, char *h_graph_mask, char *h_updating_graph_mask,
@@ -101,42 +108,28 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
 {
 
   Node* d_graph_nodes;
-  cudaMalloc((void**) &d_graph_nodes, sizeof(Node)*no_of_nodes);
+  cudaMalloc((void**) &d_graph_nodes, sizeof(Node)*no_of_nodes) ;
+  cudaMemcpy(d_graph_nodes, h_graph_nodes, sizeof(Node)*no_of_nodes, cudaMemcpyHostToDevice) ;
 
   int* d_graph_edges;
-  cudaMalloc((void**) &d_graph_edges, sizeof(int)*edge_list_size);
+  cudaMalloc((void**) &d_graph_edges, sizeof(int)*edge_list_size) ;
+  cudaMemcpy( d_graph_edges, h_graph_edges, sizeof(int)*edge_list_size, cudaMemcpyHostToDevice) ;
 
   char* d_graph_mask;
-  cudaMalloc((void**) &d_graph_mask, sizeof(char)*no_of_nodes);
+  cudaMalloc((void**) &d_graph_mask, sizeof(char)*no_of_nodes) ;
+  cudaMemcpy(d_graph_mask, h_graph_mask, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice) ;
 
   char* d_updating_graph_mask;
-  cudaMalloc((void**) &d_updating_graph_mask, sizeof(char)*no_of_nodes);
+  cudaMalloc((void**) &d_updating_graph_mask, sizeof(char)*no_of_nodes) ;
+  cudaMemcpy(d_updating_graph_mask, h_updating_graph_mask, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice) ;
 
   char* d_graph_visited;
   cudaMalloc((void**) &d_graph_visited, sizeof(char)*no_of_nodes) ;
+  cudaMemcpy(d_graph_visited, h_graph_visited, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice) ;
 
   int* d_cost;
   cudaMalloc((void**) &d_cost, sizeof(int)*no_of_nodes);
-  
-  long time = 0;
-  
-  int repeat = 512;
-
-  for (int i = 0; i < repeat; i++) {
-  	auto start = std::chrono::steady_clock::now();
-	  
-	cudaMemcpy(d_graph_nodes, h_graph_nodes, sizeof(Node)*no_of_nodes, cudaMemcpyHostToDevice); 
-  	cudaMemcpy(d_graph_edges, h_graph_edges, sizeof(int)*edge_list_size, cudaMemcpyHostToDevice); 
-  	cudaMemcpy(d_graph_mask, h_graph_mask, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice); 
-  	cudaMemcpy(d_updating_graph_mask, h_updating_graph_mask, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice);
-  	cudaMemcpy(d_graph_visited, h_graph_visited, sizeof(char)*no_of_nodes, cudaMemcpyHostToDevice);  
-  	cudaMemcpy(d_cost, h_cost, sizeof(int)*no_of_nodes, cudaMemcpyHostToDevice);
-	cudaDeviceSynchronize();
-	auto end = std::chrono::steady_clock::now();
-  	time += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-  }
-
-  printf("Total memory transfer time : %f (us)\n", ((time * 1e-3f) / (float)repeat));
+  cudaMemcpy(d_cost, h_cost, sizeof(int)*no_of_nodes, cudaMemcpyHostToDevice) ;
 
   char h_over;
   char *d_over;
@@ -145,8 +138,8 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
   // setup execution parameters
   dim3 grid((no_of_nodes + MAX_THREADS_PER_BLOCK - 1) / MAX_THREADS_PER_BLOCK);
   dim3 threads(MAX_THREADS_PER_BLOCK);
-  int counter = 0;
-  time = 0;
+
+  long time = 0;
   do {
     h_over = 0;
     cudaMemcpy(d_over, &h_over, sizeof(char), cudaMemcpyHostToDevice) ;
@@ -161,11 +154,10 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
     cudaDeviceSynchronize();
     auto end = std::chrono::steady_clock::now();
     time += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-    //counter++;
+
     cudaMemcpy(&h_over, d_over, sizeof(char), cudaMemcpyDeviceToHost) ;
   } while(h_over);
-  
-  //printf("Iterations: %d\n", counter);
+
   printf("Total kernel execution time : %f (us)\n", time * 1e-3f);
 
   // copy result from device to host
@@ -180,4 +172,102 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
   cudaFree(d_over);
 }
 
+//----------------------------------------------------------
+//--cambine:  main function
+//--author:    created by Jianbin Fang
+//--date:    25/01/2011
+//----------------------------------------------------------
+extern "C" void run_bfs_main()
+{
+  int no_of_nodes;
+  int edge_list_size;
+  FILE *fp;
+  Node* h_graph_nodes;
+  char *h_graph_mask, *h_updating_graph_mask, *h_graph_visited;
+  char *input_f;
 
+  input_f = "/home/35e/HeCBench/src/bfs-cuda/rodinia_3.1/data/bfs/inputGen/graph256M.txt";
+  printf("Reading File\n");
+  //Read in Graph from a file
+  fp = fopen(input_f,"r");
+  if(!fp){
+    printf("Error Reading graph file %s\n", input_f);
+    return;
+  }
+
+  int source = 0;
+
+  fscanf(fp,"%d",&no_of_nodes);
+
+  // allocate host memory
+  h_graph_nodes = (Node*) malloc(sizeof(Node)*no_of_nodes);
+  h_graph_mask = (char*) malloc(sizeof(char)*no_of_nodes);
+  h_updating_graph_mask = (char*) malloc(sizeof(char)*no_of_nodes);
+  h_graph_visited = (char*) malloc(sizeof(char)*no_of_nodes);
+
+  int start, edgeno;   
+  // initalize the memory
+  for(int i = 0; i < no_of_nodes; i++){
+    fscanf(fp,"%d %d",&start,&edgeno);
+    h_graph_nodes[i].starting = start;
+    h_graph_nodes[i].no_of_edges = edgeno;
+    h_graph_mask[i]=0;
+    h_updating_graph_mask[i]=0;
+    h_graph_visited[i]=0;
+  }
+  //read the source node from the file
+  fscanf(fp,"%d",&source);
+  source=0;
+  //set the source node as 1 in the mask
+  h_graph_mask[source]=1;
+  h_graph_visited[source]=1;
+  fscanf(fp,"%d",&edge_list_size);
+  int id,cost;
+  int* h_graph_edges = (int*) malloc(sizeof(int)*edge_list_size);
+  for(int i=0; i < edge_list_size ; i++){
+    fscanf(fp,"%d",&id);
+    fscanf(fp,"%d",&cost);
+    h_graph_edges[i] = id;
+  }
+
+  if(fp) fclose(fp);    
+  // allocate mem for the result on host side
+  int *h_cost = (int*) malloc(sizeof(int)*no_of_nodes);
+  int *h_cost_ref = (int*)malloc(sizeof(int)*no_of_nodes);
+  for(int i=0;i<no_of_nodes;i++){
+    h_cost[i]=-1;
+    h_cost_ref[i] = -1;
+  }
+  h_cost[source]=0;
+  h_cost_ref[source]=0;    
+
+  printf("run bfs (#nodes = %d) on device\n", no_of_nodes);
+  run_bfs_gpu(no_of_nodes,h_graph_nodes,edge_list_size,h_graph_edges, 
+      h_graph_mask, h_updating_graph_mask, h_graph_visited, h_cost);  
+
+  printf("run bfs (#nodes = %d) on host (cpu) \n", no_of_nodes);
+  // initalize the memory again
+  for(int i = 0; i < no_of_nodes; i++){
+    h_graph_mask[i]=0;
+    h_updating_graph_mask[i]=0;
+    h_graph_visited[i]=0;
+  }
+  //set the source node as 1 in the mask
+  source=0;
+  h_graph_mask[source]=1;
+  h_graph_visited[source]=1;
+  run_bfs_cpu(no_of_nodes,h_graph_nodes,edge_list_size,h_graph_edges, 
+      h_graph_mask, h_updating_graph_mask, h_graph_visited, h_cost_ref);
+
+  // verify
+  compare_results<int>(h_cost_ref, h_cost, no_of_nodes);
+
+  free(h_graph_nodes);
+  free(h_graph_mask);
+  free(h_updating_graph_mask);
+  free(h_graph_visited);
+  free(h_cost);
+  free(h_cost_ref);
+
+  return;
+}

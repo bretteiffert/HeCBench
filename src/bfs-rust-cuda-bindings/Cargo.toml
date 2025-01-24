@@ -3,6 +3,8 @@ name = "bfs-rust-cuda-bindings"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+[build-dependencies]
+cc = "1.2.10"
 bindgen = "0.71.1"
-cudarc = { version = "0.12.2", features = ["cuda-version-from-build-system"] }
+
+[dependencies]

@@ -177,7 +177,7 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
 //--author:    created by Jianbin Fang
 //--date:    25/01/2011
 //----------------------------------------------------------
-int main(int argc, char * argv[])
+extern "C" void run_bfs_main()
 {
   int no_of_nodes;
   int edge_list_size;
@@ -185,18 +185,14 @@ int main(int argc, char * argv[])
   Node* h_graph_nodes;
   char *h_graph_mask, *h_updating_graph_mask, *h_graph_visited;
   char *input_f;
-  if(argc!=2){
-    Usage(argc, argv);
-    exit(0);
-  }
 
-  input_f = argv[1];
+  input_f = "/home/35e/HeCBench/src/bfs-rust-cuda/bfs-cuda-c/src/graph1MW_6.txt";
   printf("Reading File\n");
   //Read in Graph from a file
   fp = fopen(input_f,"r");
   if(!fp){
     printf("Error Reading graph file %s\n", input_f);
-    return 1;
+    return;
   }
 
   int source = 0;
@@ -273,5 +269,5 @@ int main(int argc, char * argv[])
   free(h_cost);
   free(h_cost_ref);
 
-  return 0;
+  return;
 }

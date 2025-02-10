@@ -6,7 +6,7 @@
 CC        = nvcc
 OPTIMIZE  = yes
 DEBUG     = no
-ARCH      = sm_90
+ARCH      = sm_80
 LAUNCHER  =
 
 #===============================================================================
@@ -15,7 +15,7 @@ LAUNCHER  =
 
 program = main
 
-source = bfs.cu
+source = main.cu bfs.cu
 
 obj = $(source:.cu=.o)
 
@@ -24,7 +24,7 @@ obj = $(source:.cu=.o)
 #===============================================================================
 
 # Standard Flags
-CFLAGS := $(EXTRA_CFLAGS) -std=c++14 -Xcompiler -Wall -arch=$(ARCH) -I../bfs-sycl
+CFLAGS := $(EXTRA_CFLAGS) -std=c++14 -Xcompiler -Wall -arch=$(ARCH) -I../../bfs-sycl
 
 # Linker Flags
 LDFLAGS = 
@@ -48,12 +48,15 @@ endif
 $(program): $(obj) Makefile
 	$(CC) $(CFLAGS) $(obj) -o $@ $(LDFLAGS)
 
-bfs.o: bfs.cu ../bfs-sycl/util.h Makefile
+bfs.o: bfs.cu ../../bfs-sycl/util.h Makefile
+	$(CC) $(CFLAGS) -c $< -o $@
+
+main.o: main.cu Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(program) $(obj)
 
 run: $(program)
-	$(LAUNCHER) ./$(program) rodinia_3.1/data/bfs/inputGen/graph128M.txt
+	$(LAUNCHER) ./$(program) graph1MW_6.txt
 

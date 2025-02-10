@@ -1,5 +1,5 @@
 [package]
-name = "bfs-rust-cuda"
+name = "bfs-cudarc"
 version = "0.1.0"
 edition = "2021"
 

@@ -23,9 +23,9 @@ fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
 }
 
 fn main() -> Result<(), DriverError> {
-    let dev = CudaDevice::new(1)?;
-    dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/src/bfs-kernel.ptx"), "BFS", &["BFS_Kernel"])?;
-    dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/src/bfs-kernel.ptx"), "BFS2", &["BFS_Kernel2"])?;
+    let dev = CudaDevice::new(0)?;
+    dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/bfs-cudarc/src/bfs-kernel.ptx"), "BFS", &["BFS_Kernel"])?;
+    dev.load_ptx(Ptx::from_file("/home/35e/HeCBench/src/bfs-rust-cuda/bfs-cudarc/src/bfs-kernel.ptx"), "BFS2", &["BFS_Kernel2"])?;
     let f = dev.get_func("BFS", "BFS_Kernel").unwrap();
     let f2 = dev.get_func("BFS2", "BFS_Kernel2").unwrap();
 

@@ -177,7 +177,7 @@ void run_bfs_gpu(int no_of_nodes, Node *h_graph_nodes, int edge_list_size,
 //--author:    created by Jianbin Fang
 //--date:    25/01/2011
 //----------------------------------------------------------
-extern "C" void run_bfs_main()
+int main(int argc, char * argv[])
 {
   int no_of_nodes;
   int edge_list_size;
@@ -185,14 +185,18 @@ extern "C" void run_bfs_main()
   Node* h_graph_nodes;
   char *h_graph_mask, *h_updating_graph_mask, *h_graph_visited;
   char *input_f;
+  if(argc!=2){
+    Usage(argc, argv);
+    exit(0);
+  }
 
-  input_f = "/home/35e/HeCBench/src/bfs-cuda/rodinia_3.1/data/bfs/inputGen/graph256M.txt";
+  input_f = argv[1];
   printf("Reading File\n");
   //Read in Graph from a file
   fp = fopen(input_f,"r");
   if(!fp){
     printf("Error Reading graph file %s\n", input_f);
-    return;
+    return 1;
   }
 
   int source = 0;
@@ -269,5 +273,5 @@ extern "C" void run_bfs_main()
   free(h_cost);
   free(h_cost_ref);
 
-  return;
+  return 0;
 }

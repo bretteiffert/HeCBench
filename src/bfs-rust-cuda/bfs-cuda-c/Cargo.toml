@@ -1,5 +1,5 @@
 [package]
-name = "bfs-rust-cuda-bindings"
+name = "bfs-cuda-c"
 version = "0.1.0"
 edition = "2021"
 

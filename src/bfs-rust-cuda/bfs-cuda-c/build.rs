@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .flag("-std=c++14")
         .flag("-Xcompiler")
         .flag("-Wall")
-        .flag("-arch=sm_90")
+        .flag("-arch=sm_80")
         .flag("-I../bfs-sycl")
         .compile("main");
     
